@@ -126,13 +126,38 @@ section{padding:64px 22px;text-align:center;position:relative}
   background:var(--son);color:var(--vang-2);border:1px solid var(--vang);font:600 13px "Be Vietnam Pro",sans-serif;letter-spacing:.05em;text-decoration:none;transition:transform .2s,background .2s}
 .btn:hover{background:var(--son-2);transform:translateY(-2px)}
 
-/* ================= ALBUM ================= */
-.album{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.album figure{aspect-ratio:3/4;border:3px solid var(--vang);border-radius:999px 999px 6px 6px;overflow:hidden;
-  background:linear-gradient(160deg,var(--son-2),var(--son-d));box-shadow:0 0 0 5px var(--giay),0 0 0 6px var(--vang);margin:6px;cursor:zoom-in;
-  display:flex;align-items:center;justify-content:center;color:var(--vang-2)}
-.album figure:nth-child(3n+1){grid-column:span 2;aspect-ratio:1;border-radius:50%;width:78%;justify-self:center}
+/* ================= LỊCH THÁNG ================= */
+.cal{max-width:340px;margin:0 auto}
+.cal h3{font:700 22px "Cormorant Garamond",serif;color:var(--son);letter-spacing:.1em;margin-bottom:10px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:14px}
+.cal-grid .wd{font-weight:600;color:var(--son);font-size:12px;padding-bottom:6px;border-bottom:1px solid rgba(201,150,58,.5);margin-bottom:4px}
+.cal-grid span{aspect-ratio:1;display:flex;align-items:center;justify-content:center;position:relative;color:var(--muc)}
+.cal-grid .sun{color:var(--son-2)}
+.cal-grid .day{color:#fff;font-weight:700;z-index:0}
+.cal-grid .day::before{content:"♥";position:absolute;inset:-2px;display:flex;align-items:center;justify-content:center;font-size:36px;padding-top:4px;color:var(--son);z-index:-1;animation:beat 1.4s infinite}
+@keyframes beat{30%{transform:scale(1.15)}60%{transform:scale(1)}}
+
+/* ================= LỊCH TRÌNH ================= */
+.sched{max-width:340px;margin:0 auto;text-align:left;position:relative}
+.sched::before{content:"";position:absolute;left:74px;top:8px;bottom:8px;width:2px;background:linear-gradient(var(--vang),var(--son),var(--vang))}
+.sched div{display:grid;grid-template-columns:62px 24px 1fr;align-items:center;gap:6px;margin-bottom:16px}
+.sched b{font:700 20px "Cormorant Garamond",serif;color:var(--son);text-align:right}
+.sched i{width:14px;height:14px;transform:rotate(45deg);background:var(--vang);border:2px solid var(--giay);box-shadow:0 0 0 1px var(--vang);justify-self:center;margin-left:6px}
+.sched span{font-size:15px}
+
+/* ================= DRESS CODE ================= */
+.dress{display:flex;justify-content:center;gap:14px;margin:8px 0 14px}
+.dress span{width:46px;height:46px;border-radius:50%;border:3px solid var(--giay);box-shadow:0 0 0 1px var(--vang),0 4px 10px rgba(0,0,0,.15)}
+.dress-note{font:italic 500 17px "Cormorant Garamond",serif;color:var(--nhat);max-width:340px;margin:0 auto}
+
+/* ================= ALBUM (coverflow) ================= */
+.album{display:flex;gap:0;overflow-x:auto;scroll-snap-type:x mandatory;padding:20px 19%;margin:0 -22px;perspective:900px;scrollbar-width:none}
+.album::-webkit-scrollbar{display:none}
+.album figure{flex:0 0 62%;aspect-ratio:3/4;scroll-snap-align:center;border:3px solid var(--vang);border-radius:999px 999px 8px 8px;overflow:hidden;
+  background:linear-gradient(160deg,var(--son-2),var(--son-d));box-shadow:0 0 0 5px var(--giay),0 0 0 6px var(--vang),0 14px 28px rgba(60,0,0,.3);
+  cursor:zoom-in;display:flex;align-items:center;justify-content:center;color:var(--vang-2);transition:transform .25s ease-out,opacity .25s;transform-origin:center}
 .album img{width:100%;height:100%;object-fit:cover}
+.album-count{font:600 13px "Be Vietnam Pro",sans-serif;color:var(--nhat);letter-spacing:.2em}
 .album .ph{text-align:center;font-size:12px;letter-spacing:.15em}
 .album .ph .han{display:block;font-size:46px;line-height:1;margin-bottom:4px}
 #lightbox{position:fixed;inset:0;background:rgba(20,2,2,.94);z-index:90;display:none;align-items:center;justify-content:center}
@@ -341,6 +366,17 @@ footer p{font-family:"Cormorant Garamond",serif;font-size:17px;opacity:.9}
     </div>
   </section>
 
+  <!-- ========== LỊCH ========== -->
+  <section style="padding-top:10px">
+    <div class="framed reveal">
+      <div class="cal">
+        <h3 id="calTitle"></h3>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+      <a class="btn" id="gcal" target="_blank" rel="noopener">＋ Thêm vào lịch</a>
+    </div>
+  </section>
+
   <!-- ========== NGHI LỄ ========== -->
   <section>
     <div class="title reveal">Nghi Lễ</div>
@@ -348,11 +384,27 @@ footer p{font-family:"Cormorant Garamond",serif;font-size:17px;opacity:.9}
     <div class="rites" id="rites"></div>
   </section>
 
+  <!-- ========== LỊCH TRÌNH TIỆC ========== -->
+  <section style="padding-top:10px">
+    <div class="title reveal">Lịch Trình</div>
+    <div class="sub reveal">Tiệc cưới</div>
+    <div class="sched reveal" id="sched"></div>
+  </section>
+
+  <!-- ========== DRESS CODE ========== -->
+  <section style="padding-top:10px">
+    <div class="title reveal">Trang Phục</div>
+    <div class="sub reveal">Dress code</div>
+    <div class="dress reveal" id="dress"></div>
+    <p class="dress-note reveal" id="dressNote"></p>
+  </section>
+
   <!-- ========== ALBUM ========== -->
   <section>
     <div class="title reveal">Khoảnh Khắc</div>
     <div class="sub reveal">Album ảnh cưới</div>
-    <div class="album reveal" id="album"></div>
+    <div class="album" id="album"></div>
+    <div class="album-count" id="albumCount"></div>
   </section>
 
   <!-- ========== LƯU BÚT ========== -->
@@ -414,6 +466,14 @@ const CONFIG = {
     { title: "Lễ Thành Hôn", time: "10:00", date: "27/12/2026", place: "Tư gia nhà trai", address: "456 Đường XYZ, Quận 3, TP. HCM", map: "https://www.google.com/maps/search/?api=1&query=Quan+3+Ho+Chi+Minh" },
     { title: "Tiệc Cưới", time: "11:00", date: "27/12/2026", place: "Nhà hàng Hoàng Cung – Sảnh Kim Long", address: "123 Đường ABC, Quận 1, TP. HCM", map: "https://www.google.com/maps/search/?api=1&query=Quan+1+Ho+Chi+Minh" },
   ],
+  schedule: [
+    { time: "17:30", text: "Đón khách" },
+    { time: "18:00", text: "Làm lễ gia tiên & ra mắt" },
+    { time: "18:30", text: "Khai tiệc" },
+    { time: "18:45", text: "Rót rượu, cắt bánh" },
+    { time: "21:00", text: "Tiễn khách" },
+  ],
+  dressCode: { colors: ["#8e1414", "#d4a33f", "#f5e9cf", "#1f3d6b"], note: "Khách mời có thể mặc áo dài hoặc cổ phục theo tông đỏ – vàng – kem – lam." },
   // Thêm ảnh: ["images/1.jpg", "images/2.jpg", ...]. Để trống sẽ hiện khung mẫu.
   album: [],
   banks: [
@@ -464,10 +524,44 @@ $("#rites").innerHTML = C.rites.map(r => `
     <a class="btn" href="${esc(r.map)}" target="_blank" rel="noopener">⌖ Chỉ đường</a>
   </div>`).join("");
 
+/* lịch tháng */
+{
+  const y = D.getFullYear(), m = D.getMonth(), off = (new Date(y, m, 1).getDay() + 6) % 7, n = new Date(y, m + 1, 0).getDate();
+  $("#calTitle").textContent = `Tháng ${m + 1} · ${y}`;
+  let h = ["T2","T3","T4","T5","T6","T7","CN"].map(d => `<span class="wd">${d}</span>`).join("") + "<span></span>".repeat(off);
+  for (let d = 1; d <= n; d++) h += `<span class="${d === D.getDate() ? "day" : (off + d) % 7 === 0 ? "sun" : ""}">${d}</span>`;
+  $("#calGrid").innerHTML = h;
+  const fmt = t => new Date(t).toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+  $("#gcal").href = "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+    `&text=${encodeURIComponent(`Đám cưới ${C.groom.short} & ${C.bride.short}`)}` +
+    `&dates=${fmt(D)}/${fmt(+D + 3 * 3600e3)}` +
+    `&location=${encodeURIComponent(C.place)}&details=${encodeURIComponent(location.href.split("?")[0])}`;
+}
+$("#sched").innerHTML = C.schedule.map(s => `<div><b>${esc(s.time)}</b><i></i><span>${esc(s.text)}</span></div>`).join("");
+$("#dress").innerHTML = C.dressCode.colors.map(c => `<span style="background:${esc(c)}"></span>`).join("");
+$("#dressNote").textContent = C.dressCode.note;
+
+/* album coverflow */
 const album = C.album.length ? C.album : Array(6).fill(null);
-$("#album").innerHTML = album.map((src, i) => src
+const albumEl = $("#album");
+albumEl.innerHTML = album.map((src, i) => src
   ? `<figure data-i="${i}"><img src="${esc(src)}" alt="Ảnh cưới ${i + 1}" loading="lazy"></figure>`
   : `<figure><div class="ph"><span class="han">囍</span>Ảnh cưới</div></figure>`).join("");
+function flow() {
+  const mid = albumEl.scrollLeft + albumEl.clientWidth / 2;
+  let best = 0, bestD = 1e9;
+  [...albumEl.children].forEach((f, i) => {
+    const d = (f.offsetLeft + f.offsetWidth / 2 - mid) / f.offsetWidth;   // -1..1
+    const a = Math.max(-1.5, Math.min(1.5, d));
+    f.style.transform = `rotateY(${-a * 35}deg) scale(${1 - Math.min(Math.abs(a), 1) * .22})`;
+    f.style.opacity = 1 - Math.min(Math.abs(a), 1) * .35;
+    f.style.zIndex = 10 - Math.round(Math.abs(a) * 3);
+    if (Math.abs(d) < bestD) { bestD = Math.abs(d); best = i; }
+  });
+  $("#albumCount").textContent = `${best + 1} / ${album.length}`;
+}
+albumEl.addEventListener("scroll", () => requestAnimationFrame(flow), { passive: true });
+addEventListener("resize", flow); flow();
 
 $("#envs").innerHTML = C.banks.map(b => {
   const qr = `https://img.vietqr.io/image/${encodeURIComponent(b.bank)}-${encodeURIComponent(b.account)}-compact2.png?accountName=${encodeURIComponent(b.holder)}&addInfo=${encodeURIComponent("Mung cuoi " + C.groom.short + " " + C.bride.short)}`;
