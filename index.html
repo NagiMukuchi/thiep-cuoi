@@ -130,10 +130,24 @@ section{padding:64px 24px;text-align:center;position:relative}
 
 /* ---------- album ---------- */
 .album{background:var(--blush)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.grid img{width:100%;height:100%;object-fit:cover;border-radius:10px;cursor:zoom-in;aspect-ratio:3/4;transition:transform .4s}
-.grid img:nth-child(3n+1){grid-column:span 2;aspect-ratio:4/3}
-.grid img:hover{transform:scale(1.02)}
+/* album: dải ảnh lướt ngang */
+.slider{position:relative;margin:0 -24px}
+.track{position:relative;display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+  padding:6px 24px 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.track::-webkit-scrollbar{display:none}
+.track img{flex:0 0 80%;width:80%;aspect-ratio:4/5;object-fit:cover;border-radius:14px;scroll-snap-align:center;cursor:zoom-in;
+  box-shadow:0 8px 22px rgba(93,4,30,.16);background:#f1dde2}
+.sl-btn{position:absolute;top:calc(50% - 4px);transform:translateY(-50%);z-index:2;width:42px;height:42px;border-radius:50%;border:0;cursor:pointer;
+  background:rgba(255,255,255,.92);color:var(--wine);font-size:26px;line-height:1;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 14px rgba(93,4,30,.2);transition:opacity .3s,transform .2s}
+.sl-btn:hover{transform:translateY(-50%) scale(1.08)}
+.sl-btn[disabled]{opacity:0;pointer-events:none}
+.sl-prev{left:12px}.sl-next{right:12px}
+@media (hover:none){.sl-btn{display:none}}     /* điện thoại: lướt bằng tay, ẩn mũi tên */
+.dots{display:flex;justify-content:center;gap:7px;margin-top:12px}
+.dots button{width:8px;height:8px;border-radius:4px;border:0;padding:0;background:#e3c3cb;cursor:pointer;transition:width .3s,background .3s}
+.dots button.on{width:24px;background:var(--wine)}
+.album-count{font-size:12px;color:var(--muted);margin-top:8px;letter-spacing:.1em}
 #lightbox{position:fixed;inset:0;background:rgba(15,2,6,.94);z-index:90;display:none;align-items:center;justify-content:center}
 #lightbox.on{display:flex}
 #lightbox img{max-width:92vw;max-height:84vh;border-radius:8px}
@@ -256,8 +270,10 @@ footer p{font-size:13px;opacity:.8}
   .tl b{font-size:20px}
 
   /* album 3 cột đều */
-  .grid{grid-template-columns:repeat(3,1fr);gap:14px}
-  .grid img,.grid img:nth-child(3n+1){grid-column:auto;aspect-ratio:4/5;border-radius:14px}
+  .slider{margin:0}
+  .track{gap:18px;padding:6px 0 16px}
+  .track img{flex-basis:calc((100% - 36px) / 3);width:auto;scroll-snap-align:start}
+  .sl-prev{left:-22px}.sl-next{right:-22px}
 
   /* sổ lưu bút & hộp mừng cưới cạnh nhau */
   .duo{display:grid;grid-template-columns:1.3fr 1fr}
@@ -357,7 +373,13 @@ footer p{font-size:13px;opacity:.8}
   <section class="album">
     <div class="title reveal">Album ảnh cưới</div>
     <div class="sub reveal">Our moments</div>
-    <div class="grid" id="grid"></div>
+    <div class="slider reveal">
+      <button class="sl-btn sl-prev" id="slPrev" aria-label="Ảnh trước">‹</button>
+      <div class="track" id="grid"></div>
+      <button class="sl-btn sl-next" id="slNext" aria-label="Ảnh sau">›</button>
+    </div>
+    <div class="dots" id="dots"></div>
+    <div class="album-count" id="albumCount"></div>
   </section>
 
   <!-- RSVP + WISHES -->
@@ -583,6 +605,50 @@ tick(); setInterval(tick, 1000);
 const lb = $("#lightbox"), lbImg = lb.querySelector("img");
 let lbIdx = 0;
 const showLb = i => { lbIdx = (i + C.album.length) % C.album.length; lbImg.src = C.album[lbIdx]; lb.classList.add("on"); };
+/* ---------- album slider ---------- */
+const track = $("#grid"), dotsEl = $("#dots"), slPrev = $("#slPrev"), slNext = $("#slNext");
+const slides = [...track.querySelectorAll("img")];
+let slPages = 1, slIdx = 0, slPauseUntil = 0;
+function slTarget(i) {                     // vị trí cuộn để ảnh i vào đúng chỗ (giữa trên ĐT, trái trên máy tính)
+  const img = slides[i];
+  const center = getComputedStyle(img).scrollSnapAlign.includes("center");
+  const left = center ? img.offsetLeft - (track.clientWidth - img.offsetWidth) / 2
+                      : img.offsetLeft - parseFloat(getComputedStyle(track).paddingLeft);
+  return Math.max(0, Math.min(left, track.scrollWidth - track.clientWidth));
+}
+function slBuild() {
+  const step = slides[1] ? slides[1].offsetLeft - slides[0].offsetLeft : 1;
+  const perView = Math.max(1, Math.round(track.clientWidth / step));
+  slPages = Math.max(1, slides.length - perView + 1);
+  dotsEl.innerHTML = Array.from({ length: slPages }, (_, i) => `<button aria-label="Ảnh ${i + 1}"></button>`).join("");
+  slSync();
+}
+function slSync() {
+  let best = 0, bestD = Infinity;
+  for (let i = 0; i < slPages; i++) { const d = Math.abs(slTarget(i) - track.scrollLeft); if (d < bestD) { bestD = d; best = i; } }
+  slIdx = best;
+  [...dotsEl.children].forEach((d, i) => d.classList.toggle("on", i === slIdx));
+  slPrev.disabled = slIdx === 0;
+  slNext.disabled = slIdx >= slPages - 1;
+  $("#albumCount").textContent = `${slIdx + 1} / ${slPages}`;
+}
+function slGo(i) { slIdx = (i + slPages) % slPages; track.scrollTo({ left: slTarget(slIdx), behavior: "smooth" }); }
+const slHold = () => slPauseUntil = Date.now() + 8000;
+slPrev.onclick = () => { slHold(); slGo(slIdx - 1); };
+slNext.onclick = () => { slHold(); slGo(slIdx + 1); };
+dotsEl.addEventListener("click", e => { const i = [...dotsEl.children].indexOf(e.target); if (i >= 0) { slHold(); slGo(i); } });
+let slRaf = 0;
+track.addEventListener("scroll", () => { cancelAnimationFrame(slRaf); slRaf = requestAnimationFrame(slSync); }, { passive: true });
+["pointerdown", "touchstart", "wheel"].forEach(ev => track.addEventListener(ev, slHold, { passive: true }));
+addEventListener("resize", slBuild);
+slBuild();
+// tự lướt mỗi 3.5 giây khi album đang hiện trên màn hình
+let slVisible = false;
+new IntersectionObserver(es => slVisible = es[0].isIntersecting, { threshold: .4 }).observe(track);
+setInterval(() => {
+  if (slVisible && !document.hidden && Date.now() > slPauseUntil && !lb.classList.contains("on")) slGo(slIdx + 1);
+}, 3500);
+
 $("#grid").addEventListener("click", e => { if (e.target.dataset.i) { stopAutoScroll(); showLb(+e.target.dataset.i); } });
 $("#lb-close").onclick = () => lb.classList.remove("on");
 $("#lb-prev").onclick = () => showLb(lbIdx - 1);
