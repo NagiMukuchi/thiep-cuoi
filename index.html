@@ -152,6 +152,9 @@ form .btn{justify-self:center}
 .wish small{color:var(--muted);font-size:11px;margin-left:6px}
 .wish p{font-size:14px;margin-top:2px}
 @keyframes pop{from{opacity:0;transform:translateY(10px)}}
+.wish-note{text-align:center;color:var(--muted);font-size:13px;font-style:italic}
+.hp{position:absolute!important;left:-9999px;width:1px;height:1px;opacity:0}
+form .btn:disabled{opacity:.6;cursor:wait;transform:none}
 
 /* ---------- gift ---------- */
 .gift{background:var(--blush)}
@@ -359,6 +362,7 @@ footer p{font-size:13px;opacity:.8}
     <div class="sub reveal">Gửi lời chúc &amp; xác nhận tham dự</div>
     <form id="wishForm" class="reveal">
       <input name="name" placeholder="Tên của bạn *" required maxlength="60">
+      <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
       <select name="attend">
         <option value="yes">Mình sẽ đến chung vui 🎉</option>
         <option value="maybe">Mình sẽ cố gắng sắp xếp</option>
@@ -425,6 +429,9 @@ const CONFIG = {
   quote: "“Hôn nhân không phải là tìm một người hoàn hảo, mà là học cách nhìn một người không hoàn hảo một cách hoàn hảo.”",
   hero: "https://picsum.photos/seed/hero-wed/900/1400",
   music: "music.mp3",            // bỏ file nhạc cùng thư mục, đặt tên music.mp3
+  // Link Web App của Google Apps Script (dạng https://script.google.com/macros/s/.../exec)
+  // Để trống "" thì lời chúc chỉ lưu trên máy người gửi.
+  sheetUrl: "",
   events: [
     { title: "Lễ Vu Quy", time: "08:00", date: "27/12/2026",
       place: "Tư gia nhà gái", address: "123 Đường ABC, Quận 1, TP. Hồ Chí Minh",
@@ -586,22 +593,73 @@ let tx = 0;
 lb.addEventListener("touchstart", e => tx = e.touches[0].clientX, { passive: true });
 lb.addEventListener("touchend", e => { const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 50) showLb(lbIdx + (dx < 0 ? 1 : -1)); });
 
-/* ---------- wishes (lưu trên trình duyệt) ---------- */
+/* ---------- wishes ----------
+   - Có CONFIG.sheetUrl  → lời chúc gửi lên Google Sheets, mọi khách đều thấy
+   - Để trống sheetUrl   → lời chúc chỉ lưu trên trình duyệt của người gửi (như cũ) */
 const ATT = { yes: "Sẽ đến", maybe: "Đang sắp xếp", no: "Không thể đến" };
-let wishes = store.get("wishes", []);
-function renderWishes() {
-  const all = [...wishes, ...C.sampleWishes];
-  $("#wishes").innerHTML = all.map(w => `
-    <div class="wish"><b>${esc(w.name)}</b><small>${esc(w.time || "")}${w.attend ? " · " + ATT[w.attend] : ""}</small><p>${esc(w.message)}</p></div>`).join("");
+const SHEET = (C.sheetUrl || "").trim();
+let wishes = SHEET ? [] : store.get("wishes", []);
+
+function timeAgo(iso) {
+  const t = Date.parse(iso);
+  if (isNaN(t)) return iso || "";
+  const s = Math.max(0, (Date.now() - t) / 1000);
+  if (s < 60) return "Vừa xong";
+  if (s < 3600) return Math.floor(s / 60) + " phút trước";
+  if (s < 86400) return Math.floor(s / 3600) + " giờ trước";
+  if (s < 86400 * 30) return Math.floor(s / 86400) + " ngày trước";
+  const d = new Date(t);
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
 }
-renderWishes();
-$("#wishForm").addEventListener("submit", e => {
+function renderWishes(note) {
+  const all = SHEET ? wishes : [...wishes, ...C.sampleWishes];
+  const label = w => ATT[w.attend] || w.attend || "";      // local lưu mã, Sheets trả về chữ
+  const when = w => w.iso ? timeAgo(w.iso) : (w.time || "");
+  $("#wishes").innerHTML = (note ? `<p class="wish-note">${esc(note)}</p>` : "") + all.map(w => `
+    <div class="wish"><b>${esc(w.name)}</b><small>${esc(when(w))}${label(w) ? " · " + esc(label(w)) : ""}</small><p>${esc(w.message)}</p></div>`).join("");
+}
+async function loadWishes() {
+  if (!SHEET) return renderWishes();
+  renderWishes("Đang tải lời chúc…");
+  try {
+    const res = await fetch(SHEET, { cache: "no-store" });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+    wishes = data.wishes.map(w => ({ name: w.name, message: w.message, attend: w.attend, iso: w.time }));
+    renderWishes(wishes.length ? "" : "Hãy là người đầu tiên gửi lời chúc ♥");
+  } catch (err) {
+    renderWishes("Chưa tải được lời chúc, bạn thử tải lại trang nhé.");
+  }
+}
+loadWishes();
+
+$("#wishForm").addEventListener("submit", async e => {
   e.preventDefault();
-  const f = new FormData(e.target);
-  wishes.unshift({ name: f.get("name").trim(), message: f.get("message").trim(), attend: f.get("attend"), guests: f.get("guests"), time: "Vừa xong" });
-  store.set("wishes", wishes);
-  renderWishes();
-  e.target.reset();
+  const form = e.target, f = new FormData(form), btn = form.querySelector("button");
+  const wish = { name: f.get("name").trim(), message: f.get("message").trim(), attend: f.get("attend"), guests: f.get("guests") };
+  if (!wish.name || !wish.message) return toast("Bạn nhập tên và lời chúc nhé");
+
+  if (SHEET) {
+    btn.disabled = true; btn.textContent = "Đang gửi…";
+    try {
+      // gửi dạng text/plain để trình duyệt không chặn (CORS) khi gọi Google Apps Script
+      const res = await fetch(SHEET, { method: "POST", body: JSON.stringify({ ...wish, attend: ATT[wish.attend], website: f.get("website") }) });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error);
+    } catch (err) {
+      toast("Gửi chưa được, bạn thử lại giúp mình nhé");
+      return;
+    } finally {
+      btn.disabled = false; btn.textContent = "Gửi lời chúc ♥";
+    }
+    wishes.unshift({ ...wish, iso: new Date().toISOString() });
+    renderWishes();
+  } else {
+    wishes.unshift({ ...wish, time: "Vừa xong" });
+    store.set("wishes", wishes);
+    renderWishes();
+  }
+  form.reset();
   toast("Cảm ơn lời chúc của bạn! ♥");
   burstHearts(innerWidth / 2, innerHeight / 2, 12);
 });
