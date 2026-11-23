@@ -232,12 +232,13 @@ footer p{font-size:13px;opacity:.8}
 
   /* chuyện tình: dòng thời gian 2 bên */
   .timeline{max-width:900px;border:0;padding:0;position:relative;display:grid;grid-template-columns:1fr 1fr;column-gap:80px}
-  .timeline::before{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:2px solid var(--rose)}
+  .timeline::before{content:"";position:absolute;left:calc(50% - 1px);top:0;bottom:0;width:2px;background:var(--rose)}
   .tl{margin-bottom:40px}
   .tl:nth-child(odd){grid-column:1;text-align:right}
   .tl:nth-child(even){grid-column:2;margin-top:70px}
-  .tl::before{left:auto;right:-52px}
-  .tl:nth-child(even)::before{right:auto;left:-52px}
+  /* tim rộng 22px, tâm nằm đúng giữa khoảng cách 80px giữa 2 cột = đúng trên đường kẻ */
+  .tl::before{left:auto;right:-51px;display:flex;align-items:center;justify-content:center;line-height:1}
+  .tl:nth-child(even)::before{right:auto;left:-51px}
   .tl b{font-size:20px}
 
   /* album 3 cột đều */
