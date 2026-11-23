@@ -133,11 +133,11 @@ section{padding:64px 24px;text-align:center;position:relative}
 /* album: dải ảnh lướt ngang */
 .slider{position:relative;margin:0 -24px}
 .track{position:relative;display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
-  padding:6px 24px 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+  padding:6px 24px 32px;margin-bottom:-18px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 .track::-webkit-scrollbar{display:none}
 .track img{flex:0 0 80%;width:80%;min-width:0;aspect-ratio:4/5;object-fit:cover;border-radius:14px;scroll-snap-align:center;cursor:zoom-in;
   box-shadow:0 8px 22px rgba(93,4,30,.16);background:#f1dde2}
-.sl-btn{position:absolute;top:calc(50% - 4px);transform:translateY(-50%);z-index:2;width:42px;height:42px;border-radius:50%;border:0;cursor:pointer;
+.sl-btn{position:absolute;top:calc(50% - 13px);transform:translateY(-50%);z-index:2;width:42px;height:42px;border-radius:50%;border:0;cursor:pointer;
   background:rgba(255,255,255,.92);color:var(--wine);font-size:26px;line-height:1;display:flex;align-items:center;justify-content:center;
   box-shadow:0 4px 14px rgba(93,4,30,.2);transition:opacity .3s,transform .2s}
 .sl-btn:hover{transform:translateY(-50%) scale(1.08)}
@@ -270,11 +270,12 @@ footer p{font-size:13px;opacity:.8}
   .tl b{font-size:20px}
 
   /* album 3 cột đều */
-  .slider{margin:0}
-  .track{gap:18px;padding:6px 0 16px}
+  /* chừa 14px hai bên + 32px bên dưới để bóng đổ của ảnh không bị cắt thành vệt */
+  .slider{margin:0 -14px}
+  .track{gap:18px;padding:6px 14px 32px;scroll-padding-inline:14px}
   /* đặt cứng bề rộng + min-width:0, nếu không ảnh thật (800px) sẽ phình theo kích thước gốc */
   .track img{flex:0 0 calc((100% - 36px) / 3);width:calc((100% - 36px) / 3);min-width:0;scroll-snap-align:start}
-  .sl-prev{left:-22px}.sl-next{right:-22px}
+  .sl-prev{left:-7px}.sl-next{right:-7px}
 
   /* sổ lưu bút & hộp mừng cưới cạnh nhau */
   .duo{display:grid;grid-template-columns:1.3fr 1fr}
@@ -629,8 +630,6 @@ function slSync() {
   for (let i = 0; i < slPages; i++) { const d = Math.abs(slTarget(i) - track.scrollLeft); if (d < bestD) { bestD = d; best = i; } }
   slIdx = best;
   [...dotsEl.children].forEach((d, i) => d.classList.toggle("on", i === slIdx));
-  slPrev.disabled = slIdx === 0;
-  slNext.disabled = slIdx >= slPages - 1;
   $("#albumCount").textContent = `${slIdx + 1} / ${slPages}`;
 }
 function slGo(i) { slIdx = (i + slPages) % slPages; track.scrollTo({ left: slTarget(slIdx), behavior: "smooth" }); }
