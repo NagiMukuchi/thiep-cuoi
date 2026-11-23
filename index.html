@@ -549,7 +549,7 @@ function resize() { W = cv.width = innerWidth * devicePixelRatio; H = cv.height 
 resize(); addEventListener("resize", resize);
 const COLORS = ["#f7b6c6", "#f39bb0", "#ffd3dd", "#e98aa1", "#fff0f3"];
 function newPetal(top) {
-  return { x: Math.random() * W, y: top ? -20 : Math.random() * H, r: (6 + Math.random() * 8) * devicePixelRatio,
+  return { x: Math.random() * W, y: top ? -20 : Math.random() * H, r: (5 + Math.random() * 6) * devicePixelRatio,
            vy: (0.6 + Math.random() * 1.1) * devicePixelRatio, sway: Math.random() * 2 * Math.PI,
            rot: Math.random() * Math.PI, vr: (Math.random() - .5) * .04, c: COLORS[Math.random() * COLORS.length | 0] };
 }
@@ -557,13 +557,17 @@ for (let i = 0; i < 20; i++) petals.push(newPetal(false));
 function draw() {
   cx.clearRect(0, 0, W, H);
   for (const p of petals) {
-    p.y += p.vy; p.sway += .02; p.x += Math.sin(p.sway) * .8 * devicePixelRatio; p.rot += p.vr;
+    p.y += p.vy; p.sway += .02; p.x += Math.sin(p.sway) * .8 * devicePixelRatio; p.rot = Math.sin(p.sway) * .35; // lắc nhẹ, không lộn ngược
     if (p.y > H + 20) Object.assign(p, newPetal(true));
     cx.save(); cx.translate(p.x, p.y); cx.rotate(p.rot);
     cx.fillStyle = p.c; cx.globalAlpha = .65;
-    cx.beginPath(); cx.moveTo(0, -p.r);
-    cx.bezierCurveTo(p.r, -p.r, p.r, p.r * .6, 0, p.r);
-    cx.bezierCurveTo(-p.r, p.r * .6, -p.r, -p.r, 0, -p.r);
+    // trái tim
+    const r = p.r;
+    cx.beginPath(); cx.moveTo(0, -r * .35);
+    cx.bezierCurveTo(-r * .1, -r * .95, -r, -r * .9, -r, -r * .25);
+    cx.bezierCurveTo(-r, r * .35, -r * .35, r * .6, 0, r);
+    cx.bezierCurveTo(r * .35, r * .6, r, r * .35, r, -r * .25);
+    cx.bezierCurveTo(r, -r * .9, r * .1, -r * .95, 0, -r * .35);
     cx.fill(); cx.restore();
   }
   requestAnimationFrame(draw);
