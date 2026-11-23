@@ -181,6 +181,82 @@ footer p{font-size:13px;opacity:.8}
 
 #petals{position:fixed;inset:0;pointer-events:none;z-index:40}
 @media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}#petals{display:none}}
+
+/* =========================================================
+   BỐ CỤC MÁY TÍNH (màn hình rộng ≥ 1000px)
+   Điện thoại không bị ảnh hưởng gì
+   ========================================================= */
+@media (min-width:1000px){
+  .card{max-width:none;box-shadow:none}
+  section{padding:110px max(48px,calc(50vw - 580px))}
+  .title{font-size:58px}
+  .sub{font-size:14px;margin-bottom:44px}
+
+  /* bìa phong bì to hơn */
+  #cover{--envw:440px}
+  .env-letter .script{font-size:34px}
+
+  /* ảnh bìa tràn màn hình, chữ ở giữa */
+  .hero{justify-content:center;background-attachment:fixed}
+  .hero-inner{padding:0 24px}
+  .hero h1{font-size:110px}
+  .hero h1 span{font-size:72px;display:inline;margin:0 28px}
+  .hero .date{font-size:28px;margin-top:28px}
+
+  /* lời mời */
+  .quote{font-size:19px;max-width:640px}
+  .families{max-width:640px;margin:36px auto;font-size:15px}
+  .big-names{font-size:72px}
+  .big-names i{display:inline;margin:0 18px;font-size:44px}
+
+  /* cô dâu – chú rể đứng cạnh nhau */
+  .couple{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;column-gap:40px}
+  .couple .title,.couple .sub{grid-column:1/-1}
+  .person{margin:0;max-width:none}
+  .person .ph{width:280px;height:280px}
+  .person h3{font-size:44px}
+  .person p{max-width:360px;margin:0 auto;font-size:15px}
+  .heart-sep{margin:0;font-size:44px}
+
+  /* đếm ngược */
+  .cd{max-width:680px;gap:22px}
+  .cd div{padding:26px 8px;border-radius:18px}
+  .cd b{font-size:56px}
+  .cd span{font-size:13px}
+
+  /* 3 sự kiện trên một hàng */
+  #eventList{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .event{max-width:none;margin:0;display:flex;flex-direction:column;align-items:center}
+  .event .btn{margin-top:auto;padding-top:10px}
+  .event p:last-of-type{margin-bottom:16px}
+
+  /* chuyện tình: dòng thời gian 2 bên */
+  .timeline{max-width:900px;border:0;padding:0;position:relative;display:grid;grid-template-columns:1fr 1fr;column-gap:80px}
+  .timeline::before{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:2px solid var(--rose)}
+  .tl{margin-bottom:40px}
+  .tl:nth-child(odd){grid-column:1;text-align:right}
+  .tl:nth-child(even){grid-column:2;margin-top:70px}
+  .tl::before{left:auto;right:-52px}
+  .tl:nth-child(even)::before{right:auto;left:-52px}
+  .tl b{font-size:20px}
+
+  /* album 3 cột đều */
+  .grid{grid-template-columns:repeat(3,1fr);gap:14px}
+  .grid img,.grid img:nth-child(3n+1){grid-column:auto;aspect-ratio:4/5;border-radius:14px}
+
+  /* sổ lưu bút & hộp mừng cưới cạnh nhau */
+  .duo{display:grid;grid-template-columns:1.3fr 1fr}
+  .duo section{padding:110px 56px}
+  .duo #rsvp{padding-left:max(48px,calc(50vw - 580px))}
+  .duo #gift{padding-right:max(48px,calc(50vw - 580px))}
+  form,.wishes{max-width:none}
+  .wishes{max-height:420px}
+  .banks{max-width:none}
+
+  .fab{right:28px;bottom:28px}
+  footer{padding:90px 24px}
+  footer .script{font-size:56px}
+}
 </style>
 </head>
 <body class="locked">
@@ -270,6 +346,7 @@ footer p{font-size:13px;opacity:.8}
   </section>
 
   <!-- RSVP + WISHES -->
+  <div class="duo">
   <section id="rsvp">
     <div class="title reveal">Sổ lưu bút</div>
     <div class="sub reveal">Gửi lời chúc &amp; xác nhận tham dự</div>
@@ -296,6 +373,7 @@ footer p{font-size:13px;opacity:.8}
     <div class="sub reveal">Gửi quà qua mã QR</div>
     <div class="banks reveal" id="banks"></div>
   </section>
+  </div>
 
   <footer>
     <div class="script">Thank you!</div>
