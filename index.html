@@ -171,6 +171,11 @@ footer p{font-size:13px;opacity:.8}
 .fab button{width:46px;height:46px;border-radius:50%;border:0;cursor:pointer;background:var(--wine);color:#fff;font-size:18px;
   box-shadow:0 6px 18px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;position:relative}
 .fab button.off{background:#9b8a8e}
+.fab button{transition:background .3s,color .3s}
+/* khi nút nằm trên nền đỏ (chân trang) thì đổi sang nền trắng cho nổi */
+.fab button.on-dark{background:#fff;color:var(--wine)}
+.fab button.on-dark.off{background:rgba(255,255,255,.3);color:#fff}
+.fab button.on-dark #likeCount{background:var(--wine);color:#fff}
 #musicBtn.playing{animation:spin 4s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 #likeCount{position:absolute;top:-6px;right:-6px;background:#fff;color:var(--wine);font-size:10px;font-weight:700;border-radius:10px;padding:1px 5px}
@@ -216,7 +221,8 @@ footer p{font-size:13px;opacity:.8}
   .person .ph{width:280px;height:280px}
   .person h3{font-size:44px}
   .person p{max-width:360px;margin:0 auto;font-size:15px}
-  .heart-sep{margin:0;font-size:44px}
+  /* tim nằm ngang giữa 2 ảnh: ảnh cách trên 14px, cao 280px → tâm ảnh ở 154px; tim cao 44px → cách trên 132px */
+  .heart-sep{margin:132px 0 0;font-size:44px;line-height:1;height:44px;align-self:start}
 
   /* đếm ngược */
   .cd{max-width:680px;gap:22px}
@@ -599,6 +605,18 @@ $("#wishForm").addEventListener("submit", e => {
   toast("Cảm ơn lời chúc của bạn! ♥");
   burstHearts(innerWidth / 2, innerHeight / 2, 12);
 });
+
+/* ---------- đổi màu nút nổi khi cuộn tới chân trang màu đỏ ---------- */
+const fabBtns = [...document.querySelectorAll(".fab button")], footerEl = document.querySelector("footer");
+let fabTick = false;
+function updateFabColors() {
+  fabTick = false;
+  const top = footerEl.getBoundingClientRect().top;
+  fabBtns.forEach(b => { const r = b.getBoundingClientRect(); b.classList.toggle("on-dark", r.top + r.height / 2 > top); });
+}
+addEventListener("scroll", () => { if (!fabTick) { fabTick = true; requestAnimationFrame(updateFabColors); } }, { passive: true });
+addEventListener("resize", updateFabColors);
+updateFabColors();
 
 /* ---------- like & gift buttons ---------- */
 let likes = store.get("likes", 0);
