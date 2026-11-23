@@ -16,7 +16,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:"Be Vietnam Pro",system-ui,sans-serif;color:var(--ink);background:#2b0a14;line-height:1.6;-webkit-font-smoothing:antialiased}
+body{font-family:"Be Vietnam Pro",system-ui,sans-serif;color:var(--ink);background:#f3e2e6;line-height:1.6;-webkit-font-smoothing:antialiased}
 body.locked{overflow:hidden}
 img{display:block;max-width:100%}
 .script{font-family:"Dancing Script",cursive}
@@ -35,11 +35,13 @@ section{padding:64px 24px;text-align:center;position:relative}
 .reveal.show{opacity:1;transform:none}
 
 /* ---------- envelope cover ---------- */
-#cover{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(circle at 50% 30%,#8a1538,#3d0213 70%);transition:opacity .8s ease 1.9s,visibility 0s 2.7s}
+#cover{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:24px 16px;
+  --envw:min(84vw,340px);
+  background:radial-gradient(circle at 50% 35%,#fffafa,#fae6ea 55%,#f1cdd6);transition:opacity .8s ease 1.9s,visibility 0s 2.7s}
 #cover.open{opacity:0;visibility:hidden}
-.envelope{width:min(86vw,360px);aspect-ratio:1.45;position:relative;cursor:pointer;perspective:1000px;margin-top:40px}
-.env-back{position:absolute;inset:0;background:#c99d8a;border-radius:8px;box-shadow:0 24px 50px rgba(0,0,0,.45)}
+.envelope{width:var(--envw);aspect-ratio:1.45;position:relative;cursor:pointer;perspective:1000px;flex:none;
+  margin-top:calc(var(--envw) / 1.45 * .58 - 20px)} /* chừa chỗ cho nắp khi lật lên, không che chữ phía trên */
+.env-back{position:absolute;inset:0;background:#c99d8a;border-radius:8px;box-shadow:0 22px 45px rgba(93,4,30,.28)}
 .env-letter{position:absolute;left:7%;right:7%;top:6%;bottom:8%;z-index:1;background:var(--cream);border-radius:6px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;padding:10px;
   box-shadow:0 2px 10px rgba(0,0,0,.15);transition:transform 1s cubic-bezier(.2,.8,.2,1) .65s}
@@ -58,10 +60,10 @@ section{padding:64px 24px;text-align:center;position:relative}
 .open .env-flap{transform:rotateX(180deg);z-index:0}
 .open .seal{opacity:0;transform:translate(-50%,-50%) scale(.6)}
 .open .env-letter{transform:translateY(-58%)}
-.cover-hint{position:absolute;bottom:12vh;left:0;right:0;text-align:center;color:#ffd9e2;font-size:14px;letter-spacing:.15em;animation:pulse 1.8s infinite}
-.cover-guest{position:absolute;top:12vh;left:0;right:0;text-align:center;color:#ffd9e2}
-.cover-guest small{display:block;font-size:12px;letter-spacing:.3em;text-transform:uppercase;opacity:.8}
-.cover-guest b{font-family:"Playfair Display",serif;font-size:22px;font-weight:500}
+.cover-hint{text-align:center;color:var(--wine-2);font-size:14px;letter-spacing:.15em;animation:pulse 1.8s infinite}
+.cover-guest{text-align:center;color:var(--wine)}
+.cover-guest small{display:block;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+.cover-guest b{font-family:"Playfair Display",serif;font-size:24px;font-weight:500}
 @keyframes pulse{50%{opacity:.4}}
 #cover.open .cover-hint{animation:none;opacity:0;transition:opacity .3s}
 
@@ -91,7 +93,8 @@ section{padding:64px 24px;text-align:center;position:relative}
 /* ---------- couple ---------- */
 .couple{background:var(--blush)}
 .person{margin:0 auto 36px;max-width:340px}
-.person .ph{width:200px;height:260px;margin:0 auto 16px;border-radius:120px 120px 12px 12px;overflow:hidden;border:6px solid #fff;box-shadow:0 10px 30px rgba(93,4,30,.18)}
+.person .ph{width:210px;height:210px;margin:14px auto 26px;border-radius:50%;overflow:hidden;
+  box-shadow:0 0 0 5px #fff,0 0 0 6px var(--gold),0 0 0 12px var(--blush),0 0 0 13px var(--gold),0 14px 34px rgba(93,4,30,.25)}
 .person .ph img{width:100%;height:100%;object-fit:cover}
 .person h3{font-family:"Dancing Script",cursive;font-size:36px;color:var(--wine)}
 .person p{font-size:14px;color:var(--muted)}
@@ -550,14 +553,14 @@ function newPetal(top) {
            vy: (0.6 + Math.random() * 1.1) * devicePixelRatio, sway: Math.random() * 2 * Math.PI,
            rot: Math.random() * Math.PI, vr: (Math.random() - .5) * .04, c: COLORS[Math.random() * COLORS.length | 0] };
 }
-for (let i = 0; i < 28; i++) petals.push(newPetal(false));
+for (let i = 0; i < 20; i++) petals.push(newPetal(false));
 function draw() {
   cx.clearRect(0, 0, W, H);
   for (const p of petals) {
     p.y += p.vy; p.sway += .02; p.x += Math.sin(p.sway) * .8 * devicePixelRatio; p.rot += p.vr;
     if (p.y > H + 20) Object.assign(p, newPetal(true));
     cx.save(); cx.translate(p.x, p.y); cx.rotate(p.rot);
-    cx.fillStyle = p.c; cx.globalAlpha = .85;
+    cx.fillStyle = p.c; cx.globalAlpha = .65;
     cx.beginPath(); cx.moveTo(0, -p.r);
     cx.bezierCurveTo(p.r, -p.r, p.r, p.r * .6, 0, p.r);
     cx.bezierCurveTo(-p.r, p.r * .6, -p.r, -p.r, 0, -p.r);
