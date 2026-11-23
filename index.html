@@ -135,7 +135,7 @@ section{padding:64px 24px;text-align:center;position:relative}
 .track{position:relative;display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
   padding:6px 24px 14px;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 .track::-webkit-scrollbar{display:none}
-.track img{flex:0 0 80%;width:80%;aspect-ratio:4/5;object-fit:cover;border-radius:14px;scroll-snap-align:center;cursor:zoom-in;
+.track img{flex:0 0 80%;width:80%;min-width:0;aspect-ratio:4/5;object-fit:cover;border-radius:14px;scroll-snap-align:center;cursor:zoom-in;
   box-shadow:0 8px 22px rgba(93,4,30,.16);background:#f1dde2}
 .sl-btn{position:absolute;top:calc(50% - 4px);transform:translateY(-50%);z-index:2;width:42px;height:42px;border-radius:50%;border:0;cursor:pointer;
   background:rgba(255,255,255,.92);color:var(--wine);font-size:26px;line-height:1;display:flex;align-items:center;justify-content:center;
@@ -272,7 +272,8 @@ footer p{font-size:13px;opacity:.8}
   /* album 3 cột đều */
   .slider{margin:0}
   .track{gap:18px;padding:6px 0 16px}
-  .track img{flex-basis:calc((100% - 36px) / 3);width:auto;scroll-snap-align:start}
+  /* đặt cứng bề rộng + min-width:0, nếu không ảnh thật (800px) sẽ phình theo kích thước gốc */
+  .track img{flex:0 0 calc((100% - 36px) / 3);width:calc((100% - 36px) / 3);min-width:0;scroll-snap-align:start}
   .sl-prev{left:-22px}.sl-next{right:-22px}
 
   /* sổ lưu bút & hộp mừng cưới cạnh nhau */
