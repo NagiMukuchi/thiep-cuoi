@@ -144,6 +144,11 @@ section{padding:64px 24px;text-align:center;position:relative}
 form{max-width:380px;margin:0 auto;text-align:left;display:grid;gap:12px}
 input,select,textarea{width:100%;padding:12px 14px;border:1px solid #ead6d9;border-radius:12px;background:#fff;font:14px "Be Vietnam Pro",sans-serif;color:var(--ink)}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--rose);border-color:transparent}
+/* ô chọn: bỏ mũi tên mặc định của trình duyệt, dùng mũi tên mảnh màu đỏ rượu, thụt vào trong */
+select{-webkit-appearance:none;-moz-appearance:none;appearance:none;cursor:pointer;padding-right:44px;
+  background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%238a1538' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 18px center/12px 8px}
+select:hover{border-color:var(--rose)}
+select::-ms-expand{display:none}
 textarea{min-height:90px;resize:vertical}
 form .btn{justify-self:center}
 .wishes{max-width:380px;margin:28px auto 0;max-height:360px;overflow-y:auto;text-align:left;display:grid;gap:10px;padding-right:4px}
@@ -431,7 +436,7 @@ const CONFIG = {
   music: "music.mp3",            // bỏ file nhạc cùng thư mục, đặt tên music.mp3
   // Link Web App của Google Apps Script (dạng https://script.google.com/macros/s/.../exec)
   // Để trống "" thì lời chúc chỉ lưu trên máy người gửi.
-  sheetUrl: "",
+  sheetUrl: "https://script.google.com/macros/s/AKfycbwpQ7FyjBQjj81spiabrJNCCG1BqtFB5804slQVxPtycflLWRgyj6_PIM298BLbYuY9SQ/exec",
   events: [
     { title: "Lễ Vu Quy", time: "08:00", date: "27/12/2026",
       place: "Tư gia nhà gái", address: "123 Đường ABC, Quận 1, TP. Hồ Chí Minh",
